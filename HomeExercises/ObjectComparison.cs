@@ -14,8 +14,8 @@ namespace HomeExercises
 		public void CheckCurrentTsar()
 		{
 			var actualTsar = TsarRegistry.GetCurrentTsar();
-
-			var expectedTsar = new Person("Ivan IV The Terrible", 54, 170, 70,
+			var expectedTsar = new Person(
+			    "Ivan IV The Terrible", 54, 170, 70,
 			    new Person("Vasili III of Russia", 28, 170, 60, null));
 
             // Перепишите код на использование Fluent Assertions.
@@ -31,14 +31,18 @@ namespace HomeExercises
 			Assert.AreEqual(expectedTsar.Parent.Parent, actualTsar.Parent.Parent);
             */
 
+            Func<FieldInfo, Person, string> TakeVal = (fieldAbout, currTsar) =>
+		        fieldAbout.GetValue(currTsar) != null ? fieldAbout.GetValue(currTsar).ToString() : null;
+
             var fields = typeof(Person).GetFields();
 		    foreach (var fieldAbout in fields.Where(field => field.Name != "Id"))
 		    {
-                fieldAbout.GetValue(actualTsar).ToString()
-                    .Should().BeEquivalentTo(
-                    fieldAbout.GetValue(expectedTsar).ToString()
-		        );
-		    }
+		        TakeVal(fieldAbout, actualTsar)
+		            .Should().BeEquivalentTo(TakeVal(fieldAbout, expectedTsar));
+
+		        TakeVal(fieldAbout, actualTsar.Parent)
+		            .Should().BeEquivalentTo(TakeVal(fieldAbout, expectedTsar.Parent));
+            }
         }
 
 		[Test]
@@ -46,18 +50,32 @@ namespace HomeExercises
 		public void CheckCurrentTsar_WithCustomEquality()
 		{
 			var actualTsar = TsarRegistry.GetCurrentTsar();
-			var expectedTsar = new Person("Ivan IV The Terrible", 54, 170, 70,
+			var expectedTsar = new Person(
+			    "Ivan IV The Terrible", 54, 170, 70,
 			    new Person("Vasili III of Russia", 28, 170, 60, null));
 
             // Какие недостатки у такого подхода? 
+            /*
+             * Данный метод не включает в себя полного набора Assert-ов, 
+             * получается что производится тестирование работы стороннего метода, 
+             * в котром также могут содержаться потенциальные ошибки.
+             * 
+             * Over specification: в методе AreEqual производится проверка 
+             * экземпляров класса Person на null, хотя даже если бы его не было, тест 
+             * на данных с null не был бы пройден.
+             * Проверка actual == expected также лишняя, так как поля уже сопоставляются 
+             * в данном методе.
+             * 
+             * Мое решение лучше тем, что при любом изменении количества полей 
+             * не требуется изменять тест, тест стал расширяем.
+             */
             Assert.True(AreEqual(actualTsar, expectedTsar));
-
 		}
 
 		private bool AreEqual(Person actual, Person expected)
 		{
 			if (actual == expected) return true;
-			if (actual == null || expected == null) return false;
+			if (actual == null || expected == null) return false; 
 			return
 			actual.Name == expected.Name
 			&& actual.Age == expected.Age
