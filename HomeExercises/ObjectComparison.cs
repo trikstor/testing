@@ -1,4 +1,7 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace HomeExercises
@@ -13,9 +16,10 @@ namespace HomeExercises
 			var actualTsar = TsarRegistry.GetCurrentTsar();
 
 			var expectedTsar = new Person("Ivan IV The Terrible", 54, 170, 70,
-				new Person("Vasili III of Russia", 28, 170, 60, null));
+			    new Person("Vasili III of Russia", 28, 170, 60, null));
 
-			// Перепишите код на использование Fluent Assertions.
+            // Перепишите код на использование Fluent Assertions.
+            /*
 			Assert.AreEqual(actualTsar.Name, expectedTsar.Name);
 			Assert.AreEqual(actualTsar.Age, expectedTsar.Age);
 			Assert.AreEqual(actualTsar.Height, expectedTsar.Height);
@@ -25,7 +29,17 @@ namespace HomeExercises
 			Assert.AreEqual(expectedTsar.Parent.Age, actualTsar.Parent.Age);
 			Assert.AreEqual(expectedTsar.Parent.Height, actualTsar.Parent.Height);
 			Assert.AreEqual(expectedTsar.Parent.Parent, actualTsar.Parent.Parent);
-		}
+            */
+
+            var fields = typeof(Person).GetFields();
+		    foreach (var fieldAbout in fields.Where(field => field.Name != "Id"))
+		    {
+                fieldAbout.GetValue(actualTsar).ToString()
+                    .Should().BeEquivalentTo(
+                    fieldAbout.GetValue(expectedTsar).ToString()
+		        );
+		    }
+        }
 
 		[Test]
 		[Description("Альтернативное решение. Какие у него недостатки?")]
@@ -33,10 +47,10 @@ namespace HomeExercises
 		{
 			var actualTsar = TsarRegistry.GetCurrentTsar();
 			var expectedTsar = new Person("Ivan IV The Terrible", 54, 170, 70,
-			new Person("Vasili III of Russia", 28, 170, 60, null));
+			    new Person("Vasili III of Russia", 28, 170, 60, null));
 
-			// Какие недостатки у такого подхода? 
-			Assert.True(AreEqual(actualTsar, expectedTsar));
+            // Какие недостатки у такого подхода? 
+            Assert.True(AreEqual(actualTsar, expectedTsar));
 
 		}
 
