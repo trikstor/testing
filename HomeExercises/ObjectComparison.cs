@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
@@ -31,18 +31,8 @@ namespace HomeExercises
 			Assert.AreEqual(expectedTsar.Parent.Parent, actualTsar.Parent.Parent);
             */
 
-            Func<FieldInfo, Person, string> TakeVal = (fieldAbout, currTsar) =>
-		        fieldAbout.GetValue(currTsar) != null ? fieldAbout.GetValue(currTsar).ToString() : null;
-
-            var fields = typeof(Person).GetFields();
-		    foreach (var fieldAbout in fields.Where(field => field.Name != "Id"))
-		    {
-		        TakeVal(fieldAbout, actualTsar)
-		            .Should().BeEquivalentTo(TakeVal(fieldAbout, expectedTsar));
-
-		        TakeVal(fieldAbout, actualTsar.Parent)
-		            .Should().BeEquivalentTo(TakeVal(fieldAbout, expectedTsar.Parent));
-            }
+		    actualTsar.ShouldBeEquivalentTo(expectedTsar, options => 
+                options.Excluding(pr => pr.SelectedMemberInfo.Name == "Id"));
         }
 
 		[Test]
@@ -56,18 +46,21 @@ namespace HomeExercises
 
             // Какие недостатки у такого подхода? 
             /*
-             * Данный метод не включает в себя полного набора Assert-ов, 
-             * получается что производится тестирование работы стороннего метода, 
-             * в котром также могут содержаться потенциальные ошибки.
+             * При падении на одном из условий метода AreEqual, проверка дальше не продолжается.
              * 
-             * Over specification: в методе AreEqual производится проверка 
-             * экземпляров класса Person на null, хотя даже если бы его не было, тест 
-             * на данных с null не был бы пройден.
-             * Проверка actual == expected также лишняя, так как поля уже сопоставляются 
-             * в данном методе.
+             * При падении теста нет справочной информации (расхождение, место падения), выводится 
+             * только true/false.
+             * 
+             * Для расширения теста требуется редавтирование кода.
+             * 
+             * --- Преимущество нового решения ---
              * 
              * Мое решение лучше тем, что при любом изменении количества полей 
              * не требуется изменять тест, тест стал расширяем.
+             * 
+             * При падении теста выводится справочное сообщение.
+             * 
+             * При невыполнении одного из условий проверка продолжается дальше.
              */
             Assert.True(AreEqual(actualTsar, expectedTsar));
 		}
