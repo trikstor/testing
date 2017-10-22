@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.RegularExpressions;
 using FluentAssertions;
 using NUnit.Framework;
@@ -7,6 +7,7 @@ namespace HomeExercises
 {
 	public class NumberValidatorTests
 	{
+        /*
 		[Test]
 		public void Test()
 		{
@@ -28,6 +29,105 @@ namespace HomeExercises
 			Assert.IsFalse(new NumberValidator(3, 2, true).IsValidNumber("-1.23"));
 			Assert.IsFalse(new NumberValidator(3, 2, true).IsValidNumber("a.sd"));
 		}
+         */
+
+	    private readonly NumberValidator testValidator_3_2 = new NumberValidator(3, 2);
+	    private readonly NumberValidator testValidator_17_2 = new NumberValidator(17, 2);
+
+	    [Test]
+	    public void Constructor_ThrowException_PrecisionIsZeroOrLess()
+	    {
+	        Action res = () =>
+	        {
+                var numberValidator  = new NumberValidator(0);
+	        };
+
+            res.ShouldThrow<ArgumentException>();
+	    }
+
+	    [Test]
+        public void Constructor_ThrowException_ScaleIsLessThenZero()
+	    {
+	        Action res = () =>
+	        {
+	            var numberValidator = new NumberValidator(0, -1);
+	        };
+
+	        res.ShouldThrow<ArgumentException>();
+	    }
+
+	    [Test]
+        public void Constructor_ThrowException_ScaleIsMoreThenPrecision()
+	    {
+	        Action res = () =>
+	        {
+	            var numberValidator = new NumberValidator(0, 1);
+	        };
+
+	        res.ShouldThrow<ArgumentException>();
+	    }
+
+	    [Test]
+        public void Constructor_NotThrowException_PrecisionIsMoreThenZeroAndScaleIsLessThenPrecision()
+	    {
+	        Action res = () =>
+	        {
+	            var numberValidator = new NumberValidator(1);
+	        };
+
+	        res.ShouldNotThrow<ArgumentException>();
+	    }
+
+
+	    [Test]
+        public void IsValidNumber_ReturnsFalse_IsNull()
+	    {
+            testValidator_3_2.IsValidNumber(null).Should().BeFalse();
+	    }
+
+	    [Test]
+	    public void IsValidNumber_ReturnsFalse_IsEmpty()
+	    {
+            testValidator_3_2.IsValidNumber("").Should().BeFalse();
+	    }
+
+	    [Test]
+	    public void IsValidNumber_ReturnsFalse_IsLetters()
+	    {
+            testValidator_3_2.IsValidNumber("a.sd").Should().BeFalse();
+	    }
+
+	    [Test]
+	    public void IsValidNumber_ReturnsFalse_IsValuesWithoutDot()
+	    {
+            testValidator_3_2.IsValidNumber("0000").Should().BeFalse();
+	    }
+
+        
+	    [Test]
+        public void IsValidNumber_ReturnsFalse_FracPartIsMoreThenScale()
+	    {
+            testValidator_17_2.IsValidNumber("0.000").Should().BeFalse();
+	    }
+
+	    [Test]
+        public void IsValidNumber_ReturnsFalse_IntPartPlusFracPartIsMoreThenPrecision()
+	    {
+	        testValidator_3_2.IsValidNumber("+1.23").Should().BeFalse();
+	    }
+
+
+	    [Test]
+        public void IsValidNumber_ReturnsFalse_onlyPositiveAndSignIsNegative()
+	    {
+	        new NumberValidator(17, 2, true).IsValidNumber("-1.23").Should().BeFalse(); 
+	    }
+
+	    [Test]
+	    public void IsValidNumber_ReturnsTrue_onlyPositiveAndSignIsPositive()
+	    {
+	        new NumberValidator(17, 2, true).IsValidNumber("+1.23").Should().BeTrue();
+	    }
 	}
 
 	public class NumberValidator
