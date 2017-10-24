@@ -7,32 +7,17 @@ namespace HomeExercises
 {
 	public class NumberValidatorTests
 	{
-        /*
-		[Test]
-		public void Test()
-		{
-			Assert.Throws<ArgumentException>(() => new NumberValidator(-1, 2, true));
-			Assert.DoesNotThrow(() => new NumberValidator(1, 0, true));
-			Assert.Throws<ArgumentException>(() => new NumberValidator(-1, 2, false));
-			Assert.DoesNotThrow(() => new NumberValidator(1, 0, true));
+        private NumberValidator testValidator_3_2 { get; set; }
+        private NumberValidator testValidator_17_2{ get; set; }
+        private NumberValidator testValidator_17_2_true{ get; set; }
 
-			Assert.IsTrue(new NumberValidator(17, 2, true).IsValidNumber("0.0"));
-			Assert.IsTrue(new NumberValidator(17, 2, true).IsValidNumber("0"));
-			Assert.IsTrue(new NumberValidator(17, 2, true).IsValidNumber("0.0"));
-			Assert.IsFalse(new NumberValidator(3, 2, true).IsValidNumber("00.00"));
-			Assert.IsFalse(new NumberValidator(3, 2, true).IsValidNumber("-0.00"));
-			Assert.IsTrue(new NumberValidator(17, 2, true).IsValidNumber("0.0"));
-			Assert.IsFalse(new NumberValidator(3, 2, true).IsValidNumber("+0.00"));
-			Assert.IsTrue(new NumberValidator(4, 2, true).IsValidNumber("+1.23"));
-			Assert.IsFalse(new NumberValidator(3, 2, true).IsValidNumber("+1.23"));
-			Assert.IsFalse(new NumberValidator(17, 2, true).IsValidNumber("0.000"));
-			Assert.IsFalse(new NumberValidator(3, 2, true).IsValidNumber("-1.23"));
-			Assert.IsFalse(new NumberValidator(3, 2, true).IsValidNumber("a.sd"));
-		}
-         */
-
-	    private readonly NumberValidator testValidator_3_2 = new NumberValidator(3, 2);
-	    private readonly NumberValidator testValidator_17_2 = new NumberValidator(17, 2);
+        [SetUp]
+        public void SetUp()
+        {
+            testValidator_3_2 = new NumberValidator(3, 2);
+            testValidator_17_2 = new NumberValidator(17, 2);
+            testValidator_17_2_true = new NumberValidator(17, 2, true);
+        }
 
 	    [Test]
 	    public void Constructor_ThrowException_PrecisionIsZeroOrLess()
@@ -78,7 +63,6 @@ namespace HomeExercises
 	        res.ShouldNotThrow<ArgumentException>();
 	    }
 
-
 	    [Test]
         public void IsValidNumber_ReturnsFalse_IsNull()
 	    {
@@ -97,12 +81,18 @@ namespace HomeExercises
             testValidator_3_2.IsValidNumber("a.sd").Should().BeFalse();
 	    }
 
-	    [Test]
-	    public void IsValidNumber_ReturnsFalse_IsValuesWithoutDot()
-	    {
-            testValidator_3_2.IsValidNumber("0000").Should().BeFalse();
-	    }
+        [Test]
+        public void IsValidNumber_ReturnsFalse_WithoutOneValue()
+        {
+            testValidator_3_2.IsValidNumber("0.").Should().BeFalse();
+            testValidator_3_2.IsValidNumber(".0").Should().BeFalse();
+        }
 
+        [Test]
+        public void IsValidNumber_ReturnsTrue_CommaBetweenValues()
+        {
+            testValidator_3_2.IsValidNumber("0,00").Should().BeTrue();
+        }
         
 	    [Test]
         public void IsValidNumber_ReturnsFalse_FracPartIsMoreThenScale()
@@ -116,17 +106,16 @@ namespace HomeExercises
 	        testValidator_3_2.IsValidNumber("+1.23").Should().BeFalse();
 	    }
 
-
 	    [Test]
         public void IsValidNumber_ReturnsFalse_onlyPositiveAndSignIsNegative()
 	    {
-	        new NumberValidator(17, 2, true).IsValidNumber("-1.23").Should().BeFalse(); 
+            testValidator_17_2_true.IsValidNumber("-1.23").Should().BeFalse(); 
 	    }
 
 	    [Test]
 	    public void IsValidNumber_ReturnsTrue_onlyPositiveAndSignIsPositive()
 	    {
-	        new NumberValidator(17, 2, true).IsValidNumber("+1.23").Should().BeTrue();
+            testValidator_17_2_true.IsValidNumber("+1.23").Should().BeTrue();
 	    }
 	}
 
