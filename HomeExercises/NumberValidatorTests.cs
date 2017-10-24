@@ -27,7 +27,7 @@ namespace HomeExercises
                 var numberValidator  = new NumberValidator(0);
 	        };
 
-            res.ShouldThrow<ArgumentException>();
+            	res.ShouldThrow<ArgumentException>("zero precision");
 	    }
 
 	    [Test]
@@ -38,7 +38,7 @@ namespace HomeExercises
 	            var numberValidator = new NumberValidator(0, -1);
 	        };
 
-	        res.ShouldThrow<ArgumentException>();
+	        res.ShouldThrow<ArgumentException>("scale is negative (-1)");
 	    }
 
 	    [Test]
@@ -49,7 +49,7 @@ namespace HomeExercises
 	            var numberValidator = new NumberValidator(0, 1);
 	        };
 
-	        res.ShouldThrow<ArgumentException>();
+	        res.ShouldThrow<ArgumentException>("scale is more then precision (0 < 1)");
 	    }
 
 	    [Test]
