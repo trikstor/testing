@@ -31,29 +31,23 @@ namespace HomeExercises
         }
 
 
-        [TestCase(3, 2, false, null, TestName = "When value is null")]
-        [TestCase(3, 2, false, "", TestName = "When value string is empty")]
-        [TestCase(3, 2, false, "a.sd", TestName = "When value from letters")]
-        [TestCase(3, 2, false, "0.", TestName = "When value without one signification (integer part)")]
-        [TestCase(3, 2, false, ".0", TestName = 
+        [TestCase(3, 2, false, null, ExpectedResult = false, TestName = "When value is null")]
+        [TestCase(3, 2, false, "", ExpectedResult = false, TestName = "When value string is empty")]
+        [TestCase(3, 2, false, "a.sd", ExpectedResult = false, TestName = "When value from letters")]
+        [TestCase(3, 2, false, "0.", ExpectedResult = false, TestName = "When value without one signification (integer part)")]
+        [TestCase(3, 2, false, ".0", ExpectedResult = false, TestName = 
             "When value without one signification (fractional part)")]
-        [TestCase(3, 2, false, "0.000", TestName = "When fractional part is more then scale")]
-        [TestCase(3, 2, false, "+1.23", TestName = 
+        [TestCase(3, 2, false, "0.000", ExpectedResult = false, TestName = "When fractional part is more then scale")]
+        [TestCase(3, 2, false, "+1.23", ExpectedResult = false, TestName = 
             "When integer part plus fractional part is more then precision")]
-        [TestCase(17, 2, true, "-1.23", TestName = "When only positive values and sign is negative")]
+        [TestCase(17, 2, true, "-1.23", ExpectedResult = false, TestName = "When only positive values and sign is negative")]
 
-        public void IsValidNumber_ReturnsFalse(int precision, int scale, bool positiveOnly, string paramValue)
+        [TestCase(17, 2, true, "+1.23", ExpectedResult = true, TestName = "When only positive values and sign is positive")]
+        [TestCase(3, 2, false, "0,00", ExpectedResult = true, TestName = "When comma is between values")]
+
+        public bool IsValidNumber(int precision, int scale, bool positiveOnly, string paramValue)
         {
-            new NumberValidator(precision, scale, positiveOnly).IsValidNumber(paramValue).Should().BeFalse();
-        }
-
-
-        [TestCase(17, 2, true, "+1.23", TestName = "When only positive values and sign is positive")]
-        [TestCase(3, 2, false, "0,00", TestName = "When comma is between values")]
-
-        public void IsValidNumber_ReturnsTrue(int precision, int scale, bool positiveOnly, string paramValue)
-        {
-            new NumberValidator(precision, scale, positiveOnly).IsValidNumber(paramValue).Should().BeTrue();
+            return new NumberValidator(precision, scale, positiveOnly).IsValidNumber(paramValue);
         }
     }
 
